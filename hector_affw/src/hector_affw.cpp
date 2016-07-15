@@ -81,12 +81,17 @@ int main(int argc, char **argv) {
 
 	lastSetVelTime = ros::Time::now();
 
+	std::string cmd_vel_topic = "/cmd_vel_raw";
+	std::string state_topic = "/slam_odom_local";
+	ros::param::get("cmd_vel_topic", cmd_vel_topic);
+	ros::param::get("state_topic", state_topic);
+
 	// unreliable transport
 	ros::TransportHints th;
 	th.unreliable();
 
 	// send velocity to robot
-	pub_set_vel = n.advertise<geometry_msgs::Twist>("/cmd_vel_raw", 1);
+	pub_set_vel = n.advertise<geometry_msgs::Twist>(cmd_vel_topic, 1);
 
 	// send robot state to affw
 	pub_fdbk_state = n.advertise<affw_msgs::State>("/affw_ctrl/state", 1);
@@ -96,7 +101,7 @@ int main(int argc, char **argv) {
 			setVelCallback, th);
 
 	// receive robot state from robot
-	ros::Subscriber sub_fdbk_vel = n.subscribe("/odom", 1,
+	ros::Subscriber sub_fdbk_vel = n.subscribe(state_topic, 1,
 			feedbackVelCallback, th);
 
 	srv_action = n.serviceClient<affw_msgs::ActionRequest>("/affw_ctrl/action");

@@ -1,9 +1,0 @@
-<launch>
-	<arg name="learner" default="" />
-	<param name="learner" value="$(arg learner)" />
-	
-	<param name="configFolder" value="$(find hector_affw)/config" />
-
-	<node name="hector_affw" pkg="hector_affw" type="hector_affw" output="screen" />
-	<node name="affw_ctrl" pkg="affw_ctrl" type="affw_ctrl" output="screen" />
-</launch>

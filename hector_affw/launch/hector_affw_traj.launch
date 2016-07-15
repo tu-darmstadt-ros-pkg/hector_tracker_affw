@@ -1,0 +1,11 @@
+<launch>
+	<arg name="learner" default="none" />
+	<arg name="params" default="" />
+
+	<include file="$(find hector_affw)/launch/hector_traj.launch" />
+	
+	<include file="$(find hector_affw)/launch/hector_affw_ctrl.launch">
+		<arg name="learner" value="$(arg learner)" />
+		<arg name="custom_params" value="$(arg params)" />
+	</include>
+</launch>

@@ -1,0 +1,19 @@
+<launch>
+	<arg name="learner" default="" />
+	<arg name="custom_params" default="" />
+	
+	<param name="learner" value="$(arg learner)" />
+	<param name="custom_params" value="$(arg custom_params)" />
+	<param name="configFolder" value="$(find hector_affw)/config" />
+	
+	<!-- map from pose to velocity -->
+	<param name="pose_topic" value="/slam_out_pose" />
+	<param name="state_topic" value="/slam_odom_local" />
+	<param name="transform2Local" value="true" />
+	<node name="affw_pos2vel" pkg="affw_pos2vel" type="affw_pos2vel" output="screen" />
+	
+	<!-- start affw controller nodes -->
+	<param name="cmd_vel_topic" value="/cmd_vel_raw" />
+	<node name="hector_affw" pkg="hector_affw" type="hector_affw" output="screen" />
+	<node name="affw_ctrl" pkg="affw_ctrl" type="affw_ctrl" output="screen" />
+</launch>
