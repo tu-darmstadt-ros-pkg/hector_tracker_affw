@@ -30,6 +30,10 @@ ros::Publisher pub_fdbk_state;
 ros::ServiceClient srv_action;
 ros::Time lastSetVelTime;
 
+nav_msgs::Odometry lastOdom;
+
+bool usePose = false;
+
 void setVelCallback(const geometry_msgs::TwistStamped::ConstPtr& vel) {
 
 	lastSetVelTime = ros::Time::now();
@@ -60,8 +64,24 @@ void feedbackVelCallback(const nav_msgs::Odometry::ConstPtr& odom) {
 	state.vel.push_back(velIn.x);
 	state.vel.push_back(odom->twist.twist.angular.z);
 
+	if(usePose)
+	{
+		tf::Quaternion q;
+		tf::quaternionMsgToTF(lastOdom.pose.pose.orientation, q);
+		tf::Matrix3x3 m(q);
+		double roll, pitch, yaw;
+		m.getRPY(roll, pitch, yaw);
+
+		state.custom.push_back(roll);
+		state.custom.push_back(pitch);
+	}
+
 	pub_fdbk_state.publish(state);
 	ros::spinOnce();
+}
+
+void feedbackOdomCallback(const nav_msgs::Odometry::ConstPtr& odom) {
+	lastOdom = *odom;
 }
 
 void timerCallback(const ros::TimerEvent&)
@@ -83,8 +103,12 @@ int main(int argc, char **argv) {
 
 	std::string cmd_vel_topic = "/cmd_vel_raw";
 	std::string state_topic = "/slam_odom_local";
+	std::string odom_topic = "/odom";
 	ros::param::get("cmd_vel_topic", cmd_vel_topic);
 	ros::param::get("state_topic", state_topic);
+	ros::param::get("odom_topic", odom_topic);
+
+	ros::param::get("usePose", usePose);
 
 	// unreliable transport
 	ros::TransportHints th;
@@ -103,6 +127,8 @@ int main(int argc, char **argv) {
 	// receive robot state from robot
 	ros::Subscriber sub_fdbk_vel = n.subscribe(state_topic, 1,
 			feedbackVelCallback, th);
+	ros::Subscriber sub_fdbk_odom = n.subscribe(odom_topic, 1,
+			feedbackOdomCallback, th);
 
 	srv_action = n.serviceClient<affw_msgs::ActionRequest>("/affw_ctrl/action");
 
