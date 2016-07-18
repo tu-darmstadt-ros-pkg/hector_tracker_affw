@@ -10,6 +10,6 @@
 	
 	<arg name="record_topics" default="true" />
 	<node pkg="rosbag" type="record" name="rosbag_record_affw"
-       args="record -o /tmp/affw_data/rosbag /odom /slam_out_pose /odom_raw /state /state_cov /cmd_vel_raw /cmd_vel /tf /affw_ctrl/proc_time /affw_ctrl/target_request /odometry/filtered /affw_ctrl/state"
+       args="record -o /tmp/affw_data/rosbag /odom /slam_out_pose /odom_raw /slam_odom_local /state_cov /cmd_vel_raw /cmd_vel /tf /affw_ctrl/proc_time /affw_ctrl/target_request /odometry/filtered /affw_ctrl/state"
        if="$(arg record_topics)" />
 </launch>
