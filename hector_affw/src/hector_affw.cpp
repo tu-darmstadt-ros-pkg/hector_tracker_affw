@@ -43,6 +43,18 @@ void setVelCallback(const geometry_msgs::TwistStamped::ConstPtr& vel) {
 	srv.request.state.vel.push_back(vel->twist.linear.x);
 	srv.request.state.vel.push_back(vel->twist.angular.z);
 
+	if(usePose)
+	{
+		tf::Quaternion q;
+		tf::quaternionMsgToTF(lastOdom.pose.pose.orientation, q);
+		tf::Matrix3x3 m(q);
+		double roll, pitch, yaw;
+		m.getRPY(roll, pitch, yaw);
+
+		srv.request.state.custom.push_back(roll);
+		srv.request.state.custom.push_back(pitch);
+	}
+
 	if (srv_action.call(srv)) {
 		geometry_msgs::Twist outVel;
 		outVel.linear.x = srv.response.outVel[0];
@@ -63,18 +75,6 @@ void feedbackVelCallback(const nav_msgs::Odometry::ConstPtr& odom) {
 	state.header.frame_id = "base_link";
 	state.vel.push_back(velIn.x);
 	state.vel.push_back(odom->twist.twist.angular.z);
-
-	if(usePose)
-	{
-		tf::Quaternion q;
-		tf::quaternionMsgToTF(lastOdom.pose.pose.orientation, q);
-		tf::Matrix3x3 m(q);
-		double roll, pitch, yaw;
-		m.getRPY(roll, pitch, yaw);
-
-		state.custom.push_back(roll);
-		state.custom.push_back(pitch);
-	}
 
 	pub_fdbk_state.publish(state);
 	ros::spinOnce();
