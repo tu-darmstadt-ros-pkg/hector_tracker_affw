@@ -5,13 +5,13 @@
     <arg name="nIt" default="1" />
     <arg name="nEIt" default="0" />
     
-	<include file="$(find hector_affw)/launch/hector_traj.launch" />
+	<include file="$(find hector_affw)/launch/hector_traj.launch">
+		<arg name="nIt" value="$(arg nIt)" />
+		<arg name="nEIt" value="$(arg nEIt)" />
+	</include>
 	
 	<include file="$(find hector_affw)/launch/hector_affw_ctrl.launch">
 		<arg name="learner" value="$(arg learner)" />
 		<arg name="custom_params" value="$(arg params)" />
-		
-		<arg name="nIt" value="$(arg nIt)" />
-		<arg name="nEIt" value="$(arg nEIt)" />
 	</include>
 </launch>
