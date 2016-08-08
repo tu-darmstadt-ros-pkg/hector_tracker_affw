@@ -31,6 +31,7 @@ ros::ServiceClient srv_action;
 ros::Time lastSetVelTime;
 
 nav_msgs::Odometry lastOdom;
+bool lastOdomReceived = false;
 
 bool usePose = false;
 
@@ -45,6 +46,8 @@ void setVelCallback(const geometry_msgs::TwistStamped::ConstPtr& vel) {
 
 	if(usePose)
 	{
+		if(!lastOdomReceived)
+			return;
 		tf::Quaternion q;
 		tf::quaternionMsgToTF(lastOdom.pose.pose.orientation, q);
 		tf::Matrix3x3 m(q);
@@ -82,6 +85,7 @@ void feedbackVelCallback(const nav_msgs::Odometry::ConstPtr& odom) {
 
 void feedbackOdomCallback(const nav_msgs::Odometry::ConstPtr& odom) {
 	lastOdom = *odom;
+	lastOdomReceived = true;
 }
 
 void timerCallback(const ros::TimerEvent&)

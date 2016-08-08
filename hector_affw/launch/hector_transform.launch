@@ -1,0 +1,25 @@
+<launch>
+	<node name="backupFiles" pkg="affw_export" type="backupFiles.sh" />
+	
+	<param name="dataFolder" value="/tmp/affw_data" />
+	<param name="odom_topic" value="/odom" />
+	<param name="state_topic" value="/slam_odom_local" />
+	<param name="pose_topic" value="/slam_out_pose" />
+	<param name="cmd_vel_topic" value="/cmd_vel_raw" />
+	<node name="affw_export" pkg="affw_export" type="affw_export" output="screen" />
+	
+	<arg name="record_topics" default="true" />
+	<node pkg="rosbag" type="record" name="rosbag_record_affw"
+       args="record -o /tmp/affw_data/rosbag /odom /slam_out_pose /odom_raw /slam_odom_local /state_cov /cmd_vel_raw /cmd_vel /tf /affw_ctrl/proc_time /affw_ctrl/target_request /odometry/filtered /affw_ctrl/state"
+       if="$(arg record_topics)" />
+	
+	<!-- map from pose to velocity -->
+	<param name="pose_topic" value="/slam_out_pose" />
+	<param name="state_topic" value="/slam_odom_local" />
+	<param name="transform2Local" value="true" />
+	<node name="affw_pos2vel" pkg="affw_pos2vel" type="affw_pos2vel" output="screen" />
+	
+	<param name="cmd_vel_topic" value="/cmd_vel_raw" />
+	<param name="usePose" value="true" />
+	<node name="hector_affw" pkg="hector_affw" type="hector_affw" output="screen" />
+</launch>
